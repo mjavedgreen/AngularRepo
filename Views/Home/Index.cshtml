@@ -1,0 +1,128 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 10pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background-color: #F7F7F7;
+            color: #333;
+            font-weight: bold;
+        }
+
+        table th, table td {
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.min.js"></script>
+    <script type="text/javascript">
+        var app = angular.module('MyApp', [])
+        app.controller('MyController', function ($scope, $http, $window) {
+             $scope.geStoreItem = function () {
+                var post = $http({
+                    method: "POST",
+                    url: "/api/StoreItem/GetStoreItems",
+                    dataType: 'json',
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                post.success(function (data, status) {
+                    $scope.StoreItems = data;
+                     
+                });
+
+                post.error(function (data, status) {
+                    $window.alert(data.Message);
+                });
+            }
+            
+            $scope.Search = function () {
+                var storeItem = '{Id: "' + $scope.Id + '" }';
+                var post = $http({
+                    method: "POST",
+                    url: "/api/StoreItem/GetStoreItemById",
+                    dataType: 'json',
+                    data: storeItem,
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                post.success(function (data, status) {
+                    debugger;
+                    $scope.getStoreById = data;
+                });
+
+                post.error(function (data, status) {
+                    $window.alert(data.Message);
+                });
+            }
+            $scope.geStoreItem();
+        });
+    </script>
+    <div ng-app="MyApp" ng-controller="MyController">
+        <h1>Store Items</h1>
+        <table cellpadding="0" cellspacing="0"  >
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Cost</th>
+            </tr>
+            <tbody ng-repeat="m in  StoreItems">
+                <tr>
+                    <td>{{m.Id}}</td>
+                    <td>{{m.Name}}</td>
+                    <td>{{m.Type}}</td>
+                    <td style="text-align:right;">{{m.Cost | currency}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <hr />
+        Search by Id:
+        <input type="text" ng-model="Id" />
+        <input type="button" value="Submit" ng-click="Search()" />
+        <h1  >Result:</h1>
+         
+        <table cellpadding="0" cellspacing="0" ng-show="getStoreById != undefined && getStoreById != null" >
+           <tr >
+               <td><b>Name</b></td>
+               <td>{{getStoreById.Name}}</td>
+           </tr>
+            <tr >
+                <td><b>Type</b></td>
+                <td>{{getStoreById.Type}}</td>
+            </tr>
+            <tr  >
+                <td><b>Cost</b></td>
+                <td   >{{getStoreById.Cost | currency}}</td>
+            </tr>
+          
+        </table>
+        <table cellpadding="0" cellspacing="0"ng-show="getStoreById == null">
+            <tr>
+                <td   >
+                    <b> No record found !!</b>
+                </td>
+            </tr>
+        </table>
+</div>
+</body>
+</html>
